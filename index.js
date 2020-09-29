@@ -12,9 +12,8 @@ const config = require('./config.json');
 client.config = config;
 
 const port = process.env.PORT || 3000;
-client.listen(port, function(){
-    console.log("Express server is running on port " + port)
-});
+    console.log("Express server is running on port " + port);
+
 
 const { GiveawaysManager } = require('discord-giveaways');
 
