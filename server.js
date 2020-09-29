@@ -1,12 +1,33 @@
-var express = require('express');
-var app     = express();
+const express = require('express')
+const next = require('next')
 
-app.set('port', (process.env.PORT || 5000));
+const dev = process.env.NODE_ENV !== 'production'
 
-//For avoidong Heroku $PORT error
-app.get('/', function(request, response) {
-    var result = 'App is running'
-    response.send(result);
-}).listen(app.get('port'), function() {
-    console.log('App is running, server is listening on port ', app.get('port'));
-});
+console.log('Env:', process.env.NODE_ENV);
+
+const app = next({
+    dir: '.',
+    dev
+ })
+
+const handle = app.getRequestHandler()
+
+app.prepare()
+    .then(() => {
+        const server = express()
+
+        server.set('port', (process.env.PORT || 3000));
+
+        server.get('/user/:userId', (req, res) => {
+            return app.render(req, res, '/agent', req.query)
+        })
+
+        server.get('*', (req, res) => {
+            return handle(req, res)
+        })
+
+        server.listen(server.get('port'), (err) => {
+            if (err) throw err
+            console.log(`> Ready on http://localhost:${server.get('port')}`)
+        })
+    })
