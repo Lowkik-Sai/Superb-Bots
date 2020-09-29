@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
-const { token, default_prefix } = require('./config.json');
+const { default_prefix } = require('./config.json');
 
 const { readdirSync } = require('fs');
 
@@ -96,4 +96,4 @@ client.on("message", async message => {
     }
 })
 
-client.login(token);
+client.login(process.env.token);
