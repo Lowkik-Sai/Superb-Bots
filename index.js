@@ -18,9 +18,6 @@ require("dotenv").config();
 
 require("./server.js");
 
-
-const token = process.env.token;
-
 const { GiveawaysManager } = require('discord-giveaways');
 
 client.giveawaysManager = new GiveawaysManager(client, {
