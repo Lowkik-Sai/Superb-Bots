@@ -2,20 +2,24 @@ const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
-const { token, default_prefix } = require('./.env');
+const { token, default_prefix } = require('dotenv');
 
 const { readdirSync } = require('fs');
 
 const { join } = require('path');
 
-const config = require('./.env');
+const config = require('dotenv');
+
 client.config = config;
 
 const db = require('quick.db');
 
 require("dotenv").config();
+
 require("./server.js");
 
+
+const token = process.env.token;
 
 const { GiveawaysManager } = require('discord-giveaways');
 
