@@ -11,6 +11,8 @@ const { join } = require('path');
 const config = require('./config.json');
 client.config = config;
 
+const db = require('quick.db');
+
 
 
 
