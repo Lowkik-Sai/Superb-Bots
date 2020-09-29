@@ -11,9 +11,18 @@ const { join } = require('path');
 const config = require('./config.json');
 client.config = config;
 
-const port = process.env.PORT || 3000;
-    console.log("Express server is running on port " + port);
 
+# port (as described above) and host are both wrong
+const host = 'localhost';
+const port = 3000;
+
+# use alternate localhost and the port Heroku assigns to $PORT
+const host = '0.0.0.0';
+const port = process.env.PORT || 3000;
+
+app.listen(port, host, function() {
+  console.log("Server started.......");
+});
 
 const { GiveawaysManager } = require('discord-giveaways');
 
