@@ -2,5 +2,5 @@
     "token": "Your bot token",
     "everyoneMention": false,
     "hostedBy": true,
-    "default_prefix": ";"
+    "default_prefix": "-"
 }
