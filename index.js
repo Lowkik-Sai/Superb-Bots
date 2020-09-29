@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
-const { token, default_prefix } = require("dotenv");
+const { token, default_prefix } = require('./.env');
 
 const { readdirSync } = require('fs');
 
