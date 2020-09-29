@@ -42,7 +42,7 @@ client.on("error", console.error);
 
 client.on('ready', () => {
     console.log('I am ready');
-    client.user.setActivity(`If I'm online, you might be recorded`)
+    client.user.setActivity(`Among Us`)
 });
 
 
