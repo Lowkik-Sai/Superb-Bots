@@ -45,9 +45,6 @@ client.on('ready', () => {
     client.user.setActivity(`Among Us`)
 });
 
-server.listen(config.port, config.ip, function () {
-  console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
-});
 
 let stats = {
     serverID: '<ID>',
