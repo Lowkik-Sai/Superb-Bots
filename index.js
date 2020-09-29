@@ -8,13 +8,13 @@ const { readdirSync } = require('fs');
 
 const { join } = require('path');
 
-const config = require("dotenv");
+const config = require('./.env');
 
 client.config = config;
 
 const db = require('quick.db');
 
-require("dotenv").config();
+require('./.env').config();
 
 require("./server.js");
 
