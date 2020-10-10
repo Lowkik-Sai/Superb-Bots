@@ -1,4 +1,4 @@
-const { Client, Util, MessageEmbed } = require("discord.js");
+const { Client, Util, MessageEmbed} = require("discord.js");
 const YouTube = require("simple-youtube-api");
 const ytdl = require("ytdl-core");
 const ms = require("ms");
@@ -6,7 +6,7 @@ require("dotenv").config();
 require("./server.js");
 
 const bot = new Client({
-    disableMentions: "all"
+    disableMentions: "everyone"
 });
 
 const PREFIX = process.env.PREFIX;
@@ -14,11 +14,11 @@ const youtube = new YouTube(process.env.YTAPI_KEY);
 const queue = new Map();
 
 setInterval(function(){
-let st=["I'm Ok Now!" ,"+help" ,"+invite" ,"Dm me for help!" ,"Among Us Official"];
+let st=["What am i supposed to write here!" ,"I'm Ok Now!" ,"+help" ,"+invite" ,"Dm me for help!" ,"Among Us Official" ,"Type prefix to know my prefix" ,"My Prefix is +"];
 let sts= st[Math.floor(Math.random()*st.length)];
 bot.user.setPresence({ activity: { name: sts }, status: 'online' })
 .catch(console.error);
-},3000);
+},10000);
 
 bot.on('guildCreate', async guild => {
 	const fetchedLogs = await guild.fetchAuditLogs({
@@ -74,7 +74,10 @@ cnl.createInvite({maxAge:0})
 
 bot.on('message', msg => {
   if (msg.content === 'prefix') {
-    msg.reply('My Prefix is **+**');
+    msg.reply({embed: {
+  color: 3066993,
+  description:'My Prefix is \`+\`'
+}});
   }
 });
 
@@ -84,64 +87,698 @@ bot.on("ready", () => console.log(`[READY] ${bot.user.tag} has been successfully
 bot.on("shardDisconnect", (event, id) => console.log(`[SHARD] Shard ${id} disconnected (${event.code}) ${event}, trying to reconnect...`));
 bot.on("shardReconnecting", (id) => console.log(`[SHARD] Shard ${id} reconnecting...`));
 
-
-
 bot.on("message", async (message) => { // eslint-disable-line
     if (message.author.bot) return;
     if (!message.content.startsWith(PREFIX)) return;
 
-    const args = message.content.split(" ");
+    
+    const args = message.content.slice(PREFIX.length).trim().split(/ +/);
     const searchString = args.slice(1).join(" ");
     const url = args[1] ? args[1].replace(/<(.+)>/g, "$1") : "";
-    const serverQueue = queue.get(message.guild.id);
-
+      
     let command = message.content.toLowerCase().split(" ")[0];
     command = command.slice(PREFIX.length);
-    
-    if (command === "invite" || command === "inv") {
-        const helpembed = new MessageEmbed()
-            .setColor("BLUE")
-            .setAuthor("Invite Link", message.author.displayAvatarURL())
-            .setDescription(`[Click here!](https://discord.com/api/oauth2/authorize?client_id=758889056649216041&permissions=8&scope=bot)`)
-            .setTimestamp()
-            .setFooter("Among Us Official", "https://cdn.discordapp.com/attachments/758709208543264778/758904787499745310/Screenshot_2020-09-25-09-45-28-68.jpg");
-        message.channel.send(helpembed);
-    }
-    if (command === "invite" || command === "inv") {
-        const helpembed = new MessageEmbed()
-            .setColor("BLUE")
-            .setAuthor("Invite Link", message.author.displayAvatarURL())
-            .setDescription(`[Click here!](https://discord.com/api/oauth2/authorize?client_id=758889056649216041&permissions=8&scope=bot)`)
-            .setTimestamp()
-            .setFooter("Among Us Official", "https://cdn.discordapp.com/attachments/758709208543264778/758904787499745310/Screenshot_2020-09-25-09-45-28-68.jpg");
-        message.author.send(helpembed);
-    }
-    if (command === "say" ) { 
-        let msg;
-        let textChannel = message.mentions.channels.first()
-        message.delete()
 
-        if(textChannel) {
-            msg = args.slice(1).join(" ");
-            textChannel.send(msg)
-        } else {
-            msg = args.join(" ");
-            message.channel.send(msg)
+    if (command === "invite" || command === "inv") {
+        const helpembed = new MessageEmbed()
+            .setColor("BLUE")
+            .setAuthor("Invite Link", message.author.displayAvatarURL())
+            .setDescription(`[Click here!](https://discord.com/api/oauth2/authorize?client_id=758889056649216041&permissions=8&scope=bot)`)
+            .setTimestamp()
+            .setFooter("Among Us Official", "https://cdn.discordapp.com/attachments/758709208543264778/758904787499745310/Screenshot_2020-09-25-09-45-28-68.jpg");
+        message.reply(helpembed);
+    }
+    if (command === "meme" ) {
+        const randomPuppy = require('random-puppy');
+        const Discord = require('discord.js');
+
+        const subReddits = ["dankmemes", "meme", "memes"]
+        const random = subReddits[Math.floor(Math.random() * subReddits.length)]
+  
+        const img = await randomPuppy(random);
+  
+        const memeEmbed = new MessageEmbed()
+        .setColor("RANDOM")
+        .setImage(img)
+        .setTitle(`Your meme. From r/${random}`)
+        .setURL(`https://reddit.com/r/${random}`)
+  
+        message.channel.send(memeEmbed);
+    }
+    if (command === "ping") {
+    // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
+    // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
+    const m = await message.channel.send("Ping?");
+    m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms.`);
+    }
+    if (command === "help" || command === "cmd") {
+        const PaginationEmbed = require('discord-paginationembed');
+ 
+const embeds = [];
+
+for (let i = 1; i <= 5; ++i)
+  embeds.push(new MessageEmbed());
+ 
+ 
+const Embeds = new PaginationEmbed.Embeds()
+  .setArray(embeds)
+  .setAuthorizedUsers([message.author.id])
+  .setChannel(message.channel)
+  .setPageIndicator(true)
+  .setTitle('Among Us')
+  .setDescription('Commands List')
+  .setFooter('Type +help <commandname>')
+  .setURL('https://gazmull.github.io/discord-paginationembed')
+  .setColor(0xFF00AE)
+  // Sets the client's assets to utilise. Available options:
+  //  - message: the client's Message object (edits the message instead of sending new one for this instance)
+  //  - prompt: custom content for the message sent when prompted to jump to a page
+  //      {{user}} is the placeholder for the user mention
+  .setDeleteOnTimeout(false)
+  
+  // Listeners for PaginationEmbed's events
+  // After the initial embed has been sent
+  // (technically, after the client finished reacting with enabled navigation and function emojis).
+  .on('start', () => console.log('Started!'))
+  // When the instance is finished by a user reacting with `delete` navigation emoji
+  // or a function emoji that throws non-Error type.
+  .on('finish', (user) => console.log(`Finished! User: ${user.username}`))
+  // Upon a user reacting on the instance.
+  .on('react', (user, emoji) => console.log(`Reacted! User: ${user.username} | Emoji: ${emoji.name} (${emoji.id})`))
+  // When the awaiting timeout is reached.
+  .on('expire', () => console.warn('Expired!'))
+  // Upon an occurance of error (e.g: Discord API Error).
+  .on('error', console.error);
+
+ 
+await Embeds.build();
+    }
+});
+
+bot.on("message", async (message) => { // eslint-disable-line
+    if (!message.content.startsWith(PREFIX) || message.author.bot) return;
+
+    const args = message.content.slice(PREFIX.length).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+    // the rest of your code
+    if (command === 'args-info') {
+	if (!args.length) {
+		return message.channel.send(`You didn't provide any arguments, ${message.author}!`);
+	}
+	else if (args[0] === 'foo') {
+		return message.channel.send('bar');
+	}
+
+	message.channel.send(`First argument: ${args[0]}`);
+    }
+    if (command === "embed" ) {
+        const Discord = require("discord.js")
+
+
+  if(message.author.id !== "654669770549100575") return;
+
+  const cmd = args.join(' ').split(' | ')
+
+  let emb = new MessageEmbed()
+  .setTitle(cmd[0])
+  .setColor("RANDOM")
+  .setDescription(cmd[1])
+  .setFooter(cmd[2])
+  .setTimestamp()
+
+  message.channel.send(emb)
+
+    }
+    if (command === "ascii" ) {
+        const figlet = require('figlet');
+        if(!args[0]) return message.channel.send('Please provide some text');
+
+        msg = args.join(" ");
+
+        figlet.text(msg, function (err, data){
+            if(err){
+                console.log('Something went wrong');
+                console.dir(err);
+            }
+            if(data.length > 2000) return message.channel.send('Please provide text shorter than 2000 characters')
+
+            message.channel.send('```' + data + '```')
+        })
+    }
+    if (command === "deletewarns" || command === "delwarns" ) {
+        const db = require('quick.db');
+        const warnings = require('./warnings.js');
+        if(!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send('You can\'t use that.');
+
+        const user = message.mentions.users.first() || message.guild.members.cache.get(args[0]);
+
+        if(!user) return message.channel.send({embed: {
+  color: 3066993,
+  description:'Please specify a user, via mention or ID'
+}}); 
+
+        if(user.bot) return message.channel.send({embed: {
+  color: 3066993,
+  description:'You can\'t warn bots'
+}});
+
+        if(user.id === message.author.id) return message.channel.send({embed: {
+   color: 3066993,
+   description: 'You can\'t clear your own warnings'
+}});
+
+        if(warnings === null) return message.channel.send({embed: {
+   color: 3066993,
+   description:`**${user.username} has no warnings**`
+}});
+
+
+        db.delete(`warnings_${message.guild.id}_${user.id}`)
+        user.send({embed: {
+   color: 3066993,
+   description:`Your warnings in ${message.guild.name} are successfully deleted!`
+}});
+
+        message.channel.send({embed: {
+   color: 3066993,
+   description: `Successfully deleted warnings of ${user.username}`
+}})
+    }
+    if (command === "warn" ) {
+        const Discord = require('discord.js');
+        const db = require('quick.db');
+
+        if(!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send('You can\'t use that');
+
+        const user = message.mentions.users.first() || message.guild.members.cache.get(args[0]);
+
+        if(!user) return message.channel.send({embed: {
+   color: 3066993,
+   description:'Please specify a user, via mention or ID'
+}});
+
+        if(user.bot) return message.channel.send({embed: {
+   color: 3066993,
+   description:'You can\'t warn bots'
+}});
+
+        if(message.author.id === user.id) return message.channel.send({embed: {
+   color: 3066993,
+   description: 'You can\'t warn yourself nitwit'
+}});
+
+        if(message.guild.owner.id === user.id) return message.channel.send({embed: {
+   color: 3066993,
+   description:'You can\'t warn the server\'s owner'
+}});
+
+        let reason = args.slice(1).join(" ");
+
+        if(!reason) reason = 'Unspecified';
+
+        let warnings = db.get(`warnings_${message.guild.id}_${user.id}`);
+
+        if(warnings === 5) return message.channel.send({embed: {
+   color: 3066993,
+   description:`${user} has already reached five warnings`
+}});
+
+
+        if(warnings === null) {
+            db.set(`warnings_${message.guild.id}_${user.id}`, 1);
+            const warnembed = new MessageEmbed()
+              .setTitle('Warning')
+              .setDescription(`You were warned in ${message.guild.name}`)
+              .addField('Reason:', `${reason}`)
+              .addField('Moderator:', `${message.author.tag}`)
+              .setColor("RANDOM")
+              .setTimestamp()
+
+            user.send(warnembed);
+
+            const helpembed = new MessageEmbed()
+              .setAuthor(`${message.guild.name}`, message.author.displayAvatarURL())
+              .setTitle('Warning')
+              .setDescription(`**${user.username}** has been warned!`)
+              .addField('Reason:', `${reason}`)
+              .addField('Moderator:', `${message.author.tag}`)
+              .setColor("RANDOM")
+              .setTimestamp()
+    
+            await message.channel.send(helpembed);
+        }
+
+        if(warnings !== null){
+            const id = args.shift();
+            db.add(`warnings_${message.guild.id}_${user.id}`, 1)
+            const warnembed = new MessageEmbed()
+              .setTitle('Warning')
+              .setDescription(`You were warned in ${message.guild.name}`)
+              .addField('Reason:', `${reason}`)
+              .addField('Moderator:', `${message.author.tag}`)
+              .setColor("RANDOM")
+              .setTimestamp()
+
+            user.send(warnembed);
+            const helpembed = new MessageEmbed()
+              .setAuthor(`${message.guild.name}`, message.author.displayAvatarURL())
+              .setTitle('Warning')
+              .setDescription(`**<@${id}>** has been warned!`)
+              .addField('Reason:', `${reason}`)
+              .addField('Moderator:', `${message.author.tag}`)
+              .setColor("RANDOM")
+              .setTimestamp()
+    
+            await message.channel.send(helpembed);
         }
     }
-    if (command === "stats"&& message.author.id === '654669770549100575') {
-      let m = '';
-      m += `I am aware of ${message.guild.channels.cache.size} channels\n`;
-      m += `I am aware of ${message.guild.members.cache.size} members\n`;
-      m += `I am aware of ${bot.channels.cache.size} channels overall\n`;
-      m += `I am aware of ${bot.guilds.cache.size} guilds overall\n`;
-      m += `I am aware of ${bot.users.cache.size} users overall\n`;
-      message.channel
-        .send(m)
-        .catch(console.error);
+    if (command === "warnings" ) { 
+        const db = require('quick.db');
+
+        const user = message.mentions.users.first() || message.guild.members.cache.get(args[0]) || message.author;
+
+
+        let warnings = await db.get(`warnings_${message.guild.id}_${user.id}`);
+
+        if(warnings === null) warnings = 0;
+
+        message.channel.send({embed: {
+   color: 3066993,
+   description:`**${user.username}** has *${warnings}* warning(s)`
+}});
     }
+    if (command === "bal" ) {
+        const db = require('quick.db');
+        const Discord = require('discord.js');
+
+        let user = message.mentions.users.first() || message.author;
+
+        let bal = await db.fetch(`money_${message.guild.id}_${user.id}`);
+        if(bal === null) bal = 0;
+
+        message.channel.send({embed: {
+  color: 3447003,
+  description:`${user} currently has ${bal} coins!`
+}});
+    }
+    if (command === "daily" ) {
+       const db = require('quick.db');
+       const ms = require('parse-ms');
+
+        let user = message.author;
+        let timeout = 86400000;
+        let amount = 100;
+
+        let daily = await db.fetch(`daily_${message.guild.id}_${user.id}`);
+
+        if(daily !== null && timeout - (Date.now() - daily) > 0){
+            let time = ms(timeout - (Date.now() - daily));
+
+            return message.channel.send({embed: {
+    color: 3066993,
+    description:`You've already collected your daily award. Come back in ${time.days}d, ${time.hours}h, ${time.minutes}m, and ${time.seconds}s`
+}})
+        } else {
+            db.add(`money_${message.guild.id}_${user.id}`, amount);
+            db.set(`daily_${message.guild.id}_${user.id}`, Date.now());
+
+            message.channel.send({embed: {
+    color: 3066993,
+    description:`Successfully added ${amount} coins to your account`
+}})
+        }
+    }
+    if (command === "work" ) {
+       const db = require('quick.db');
+       const ms = require('parse-ms');
+        let user = message.author;
+        let timeout = 600000;
+        let author = await db.fetch(`worked_${message.guild.id}_${user.id}`);
+
+        if(author !== null && timeout - (Date.now() - author) > 0){
+            let time = ms(timeout - (Date.now() - author));
+            return message.channel.send({embed: {
+    color: 3066993,
+    description: `You cannot work again for ${time.minutes}m and ${time.seconds}s`
+}})
+        } else {
+            let amount = Math.floor(Math.random() * 80) + 1;
+            db.add(`money_${message.guild.id}_${user.id}`, amount)
+            db.set(`worked_${message.guild.id}_${user.id}`, Date.now())
+
+            message.channel.send({embed: {
+    color: 3066993,
+    description:`${user}, you worked and earned ${amount} coins`
+}})
+        }
+    }
+    if (command === "buy" ) {
+       const db = require('quick.db');
+       const Discord = require('discord.js');
+
+        let purchase = args.join(" ");
+        if(!purchase) return message.channel.send('Please provide an item to buy')
+        let items = await db.fetch(message.author.id, { items: [] });
+        let amount = await db.fetch(`money_${message.guild.id}_${message.author.id}`)
+
+        if(purchase === 'car' || purchase === 'Car'){
+            if(amount < 500) return message.channel.send('You do not have enough money to buy this item. Please try another one');
+            db.subtract(`money_${message.guild.id}_${message.author.id}`, 500);
+            db.push(message.author.id, "Car");
+            message.channel.send({embed: {
+    color: 3066993,
+    description:'Successfully bought one car'
+}})
+        }
+        if(purchase === 'watch' || purchase === 'Watch'){
+            if(amount < 250) return message.channel.send('You do not have enough money to buy this item. Please try another one');
+            db.subtract(`money_${message.guild.id}_${message.author.id}`, 250);
+            db.push(message.author.id, "Watch");
+            message.channel.send({embed: {
+   color: 3066993,
+   description:'Successfully bought one car'
+}})
+        }
+    }
+    if (command === "store" ) {
+       const Discord = require('discord.js');
+
+        const embed = new Discord.MessageEmbed()
+        .setTitle('Store')
+        .setDescription(`Car - 500 coins \n Watch - 250 coins`)
+        .setTimestamp();
+
+        message.channel.send(embed);
+    }
+    if (command === "inventory" ) {
+        const db = require('quick.db');
+        const Discord = require('discord.js');
+
+        let items = await db.fetch(message.author.id);
+        if(items === null) items = "Nothing"
+
+        const Embed = new Discord.MessageEmbed()
+        .addField('Inventory', items)
+
+        message.channel.send(Embed);
+    }
+    if (command === "leaderboard" || command === "lb" ) {
+        const db = require('quick.db');
+       const Discord = require('discord.js');
+
+        let money = db.fetch(`money_${message.guild.id}`, { sort: '.data' })
+
+        let content = "";
+
+        for (let i = 0; i < money.length; i++){
+            let user = client.users.cache.get(money[i].ID.split('_')[2]).username
+
+            content += `${i+1}. ${user} - ${money[i].data} \n`;
+
+            const embed = new MessageEmbed()
+            .setTitle(`${message.guild.name}'s Leaderboard`)
+            .setDescription(`${content}`)
+            .setColor("RANDOM")
+            .setTimestamp()
+
+            message.channel.send(embed);
+        }
+    }
+    if (command === "color" ) {
+        const canva = require('canvacord');
+        const Discord = require('discord.js')
+
+       let colorOfChoice = args.join(" ");
+
+        if(!args[0]) return message.channel.send('Provide a valid HEX code (#FF0000)');
+
+        let image = await canva.color(`#${colorOfChoice}`)
+
+        let color = new Discord.MessageAttachment(image, "color.png")
+
+        message.channel.send(color);
+    }
+    if (command === "changemymind" || command === "cmm" ) {
+        const canva = require('canvacord');
+        const Discord = require('discord.js');
+        const { changemymind } = require('canvacord');
+
+        let text = args.join(" ");
+
+        if(!args[0]) return message.channel.send('Provide a valid HEX code (#FF0000)');
+
+        let image = await canva.changemymind(text);
+
+        let changeMyMind = new Discord.MessageAttachment(image, "cmm.png")
+
+        message.channel.send(changeMyMind);
+    }
+    if (command === "beautify" ) {
+    let res;
+    try {
+      await message.channel.send("Searching for code to beautify...");
+      res = await format(msg);
+    } catch(e) {
+      res = e;
+    }
+    return message.channel.send(res);
+  };
+  
+  exports.conf = {
+    enabled: true,
+    guildOnly: false,
+    aliases: ["pretty"]
+  };
+  
+  exports.help = {
+    name: 'beautify'
+  };
+  
+  
+  const { js_beautify } = require("js-beautify");
+  
+  const reduceIndentation = (string) => {
+    let whitespace = string.match(/^(\s+)/);
+    if (!whitespace) return string;
+  
+    whitespace = whitespace[0].replace("\n", "");
+    return string.split("\n").map(line => line.replace(whitespace, "")).join("\n");
+  };
+  
+  const format = async (msg) => {
+    const messages = message.channel.messages.array().reverse();
+    let code;
+    const codeRegex = /```(?:js|json|javascript)?\n?((?:\n|.)+?)\n?```/ig;
+  
+    for (let m = 0; m < messages.length; m++) {
+      const message = messages[m];
+      const groups = codeRegex.exec(message.content);
+  
+      if (groups && groups[1].length) {
+        code = groups[1];
+        break;
+      }
+    }
+    if (!code) throw new Error("No Javascript codeblock found.");
+  
+    const beautifiedCode = js_beautify(code, { indent_size: 2, brace_style: "collapse", jslint_happy: true });
+    const str = await reduceIndentation(beautifiedCode);
+    return (`${"```js"}\n${str}\n${"```"}`);
+  }
+    if (command === "calculate" ) {
+        const math = require('mathjs');
+
+        const Discord = require('discord.js');
+
+        if(!args[0]) return message.channel.send('Please provide a question');
+
+        let resp;
+
+        try {
+            resp = math.evaluate(args.join(" "))
+        } catch (e) {
+            return message.channel.send('Please provide a **valid** question')
+        }
+
+        const embed = new Discord.MessageEmbed()
+        .setColor(0x808080)
+        .setTitle('Calculator')
+        .addField('Question', `\`\`\`css\n${args.join(' ')}\`\`\``)
+        .addField('Answer', `\`\`\`css\n${resp}\`\`\``)
+
+        message.channel.send(embed);
+
+    }
+    if (command === "givemeajoke" || command === "joke" ) {
+        const Discord = require("discord.js");
+        let giveMeAJoke = require('give-me-a-joke');;
+    giveMeAJoke.getRandomCNJoke(function(joke){
+        message.channel.send({embed: {
+   color: 3066993,
+   description:joke
+}})
+    })
+}
+    if (command === "addrole" || command === "ar") {
+       const Discord = require("discord.js");
+//!addrole <@user> <Role>
+  if(args[0] == "help"){
+    let helpembxd = new MessageEmbed()
+    .setColor("#00ff00")
+    .addField("Addrole Command", "Usage: !addrole <@user> <role>")
+
+    message.channel.send(helpembxd);
+    return;
+  } 
+
+  let xdemb = new MessageEmbed()
+  .setColor("#00ff00")
+  .setTitle(`Addrole command`)
+  .addField("Description:", "Add role to member", true)
+  .addField("Usage", "!addrole [user] [role]", true)
+  .addField("Example", "!addrole @Odar Member")
+
+  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send("You don't have premmsions to do that!");
+  let rMember = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
+  if(!rMember) return message.channel.send(xdemb);
+
+  let role = args.join(" ").slice(22);
+  if(!role) return message.channel.send("Specify a role!");
+  let gRole = message.guild.roles.cache.find(`name`, role);
+  if(!gRole) return message.channel.send("Couldn't find that role.");
+
+  if(rMember.roles.has(gRole.id)) return message.channel.send("This user already have that role.");
+  await(rMember.addRole(gRole.id));
+
+    await message.channel.send(`***I just gave ${rMember.user.username} the ${gRole.name} role!***`)
+  
+}
+    if (command === "removerole" || command === "rr" ) {
+        const Discord = require("discord.js");
+  if(args[0] == "help"){
+    let helpembxd = new MessageEmbed()
+    .setColor("#00ff00")
+    .addField("Removerole Command", "Usage: !removerole <@user> <role>")
+
+    message.channel.send(helpembxd);
+    return;
+  } 
+
+  let xdemb = new MessageEmbed()
+  .setColor("#00ff00")
+  .setTitle(`Removerole command`)
+  .addField("Description:", "Take role from member", true)
+  .addField("Usage", "!removerole [user] [role]", true)
+  .addField("Example", "!removerole @Odar Member")
+
+  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send("You need the `manage members`premission to do that!.");
+  let rMember = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
+  if(!rMember) return message.channel.send(xdemb);
+
+  let role = args.join(" ").slice(22);
+
+  if(!role) return message.channel.send("Specify a role!");
+  let gRole = message.guild.roles.cache.find(`name`, role);
+  if(!gRole) return message.channel.send("Couldn't find that role.");
+
+  if(!rMember.roles.has(gRole.id)) return message.channel.send("This user doesn't have that role.");
+  await(rMember.removeRole(gRole.id));
+
+  await message.channel.send(`***I just removed ${rMember.user.username}'s ${gRole.name} role!***`)
+
+}
+    if (command === "answer" ) {
+    const Discord = require("discord.js");
+    let Owner = message.author;
+    if(Owner.id !== "654669770549100575" && Owner.id !== "213588167406649346") return message.reply("Only the bot owner can use this command!")
+   
+    const id = args.shift();
+    const sayMessage = args.join(" ")
+    if(!sayMessage) return message.reply({embed: {
+  color: 3066993,
+  description:"Proper Usage : +answer <ID>  <your message>"
+}})
+    
+
+   let contact = new MessageEmbed()
+   .setAuthor(Owner.username)
+   .setColor("00ff00")
+   .setThumbnail(Owner.displayAvatarURL)
+   .setTitle("Response  from your contact!")
+   .addField("Response:", sayMessage)
+   .addField("Support Server", "[Gamer's World](https://discord.gg/NqT45sY)")
+   .setTimestamp()
+
+    bot.users.cache.get(id).send(contact);
+
+    let chanemb = new MessageEmbed()
+    .setColor("#00ff00")
+    .setDescription(`Message sent to <@${id}>`);
+
+    message.channel.send(chanemb).then(msg => {msg.delete(5000)});
+
+    }
+    if (command === "clap" ) {
+      const randomizeCase = word => word.split('').map(c => Math.random() > 0.5 ? c.toUpperCase() : c.toLowerCase()).join('');
+    if (args.length < 1) return message.channel.send("Please provide some text to clapify")
+    
+    message.channel.send(args.map(randomizeCase).join(':clap:'));
+
+    }
+    if (command === "contact" ) {
+        const Discord = require("discord.js");
+
+  if(args[0] == "help"){
+    let helpembxd = new MessageEmbed()
+    .setColor("#00ff00")
+    .addField("Contact Command", "Usage: !Contact <reason>")
+
+    message.channel.send(helpembxd);
+    return;
+  } 
+    let Sender = message.author;
+    const sayMessage = args.join(" ");
+    if(!sayMessage) return message.channel.send("Please give us reason for contacting").then(msg => {msg.delete(5000)});
+
+   let contact = new MessageEmbed()
+   .setColor("00ff00")
+   .setThumbnail(Sender.displayAvatarURL)
+   .setDescription(`Contact message from [${message.guild.name}]`)
+   .setTitle("Message from contact command!")
+   .addField("User", Sender, true)
+   .addField("User ID: ", Sender.id, true)
+   .addField("Message: ", sayMessage)
+   .setTimestamp()
+
+    bot.users.cache.get("654669770549100575").send(contact);
+
+    let embed = new MessageEmbed()
+    .setColor("#00ff00")
+    .setTitle("Message Sent!")
+    .setDescription("Your contact message has been sent!")
+    .addField("Reqested by ", Sender)
+    .addField("Message: ", sayMessage)
+    .setFooter("Thanks you for contacting with the OdarBot support!")
+
+    message.channel.send(embed).then(msg => {msg.delete(10000)});
+
+    }
+    if (command === "eval" ) {
+        const Discord = require("discord.js")
+        const Client = new Discord.Client
+
+  if(message.author.id !== "654669770549100575") return;
+
+    const command = message.content.split(' ').slice(1).join(' ');
+    message.channel.send(
+`\`\`\`js
+${eval(command)}
+\`\`\``);
+
+  }
     if (command === "covid" ) { 
         const fetch = require('node-fetch');
+        const Discord = require('discord.js');
 
         let countries = args.join(" ");
 
@@ -189,8 +826,134 @@ bot.on("message", async (message) => { // eslint-disable-line
             }).catch (err => {
                     return message.channel.send({embed: {color: "RED", description: "Something Error!Solve it asap!"}});
                 })
-
         }
+    }  
+    if (command === "say" ) { 
+         let msg;
+        let textChannel = message.mentions.channels.first()
+        message.delete()
+
+        if(textChannel) {
+            msg = args.slice(1).join(" ");
+            textChannel.send(msg)
+        } else {
+            msg = args.join(" ");
+            message.channel.send(msg)
+        }
+    }  
+    if (command === "purge" || command === "clear") {
+		const amount = args.join(" ");
+
+        if(!amount) return message.reply({embed: {
+  color: 3447003,
+  description:'please provide an amount of messages for me to delete'
+}});
+
+        if(amount > 100) return message.reply({embed: {
+  color: 3447003,
+  description:`you cannot clear more than 100 messages at once`
+}}); 
+
+        if(amount < 1) return message.reply({embed: {
+  color: 3447003,
+  description:`you need to delete at least one message`
+}}); 
+
+        await message.channel.messages.fetch({limit: amount}).then(messages => {
+            message.channel.bulkDelete(messages
+    )});
+
+
+    message.channel.send({embed: {
+  color: 3447003,
+  description:'Success!'
+}});
+
+    }
+});
+
+bot.on("message", async (message) => { // eslint-disable-line
+    if (message.author.bot) return;
+    if (!message.content.startsWith(PREFIX)) return;
+
+    
+    const args = message.content.slice(PREFIX.length).trim().split(/ +/);
+    const searchString = args.slice(1).join(" ");
+    const url = args[1] ? args[1].replace(/<(.+)>/g, "$1") : "";
+    const serverQueue = queue.get(message.guild.id);
+
+    let command = message.content.toLowerCase().split(" ")[0];
+    command = command.slice(PREFIX.length);
+    
+    if (command === "channelinvite" || command === "ci") {
+       const setChannelID = message.content.split(' ');
+
+    try{
+        message.guild.channels.cache.get(setChannelID[1]).createInvite().then(invite =>
+            message.channel.send("The channel invite has been created: \n" + invite.url)
+        );
+    }
+
+    catch(error){
+        console.error(`I could not create the invite for the channel: ${error}`);
+        message.channel.send(`You have to paste a correct channel ID!`);
+    }
+}
+    if (command === "stats"&& message.author.id === '654669770549100575') {
+      let m = '';
+      m += `I am aware of ${message.guild.channels.cache.size} channels\n`;
+      m += `I am aware of ${message.guild.members.cache.size} members\n`;
+      m += `I am aware of ${bot.channels.cache.size} channels overall\n`;
+      m += `I am aware of ${bot.guilds.cache.size} guilds overall\n`;
+      m += `I am aware of ${bot.users.cache.size} users overall\n`;
+      message.reply({embed: {
+  color: 3066993,
+  description:m
+}})
+        .catch(console.error);
+    }
+    if (command === "uptime" ) {
+       let days = 0;
+       let week = 0;
+       let uptime = ``;
+       let totalSeconds = (bot.uptime / 1000);
+       let hours = Math.floor(totalSeconds / 3600);
+       totalSeconds %= 3600;
+       let minutes = Math.floor(totalSeconds / 60);
+       let seconds = Math.floor(totalSeconds % 60);
+
+       if(hours > 23){
+           days = days + 1;
+           hours = 0;
+       }
+
+       if(days == 7){
+           days = 0;
+           week = week + 1;
+       }
+
+       if(week > 0){
+           uptime += `${week} week, `;
+       }
+
+       if(minutes > 60){
+           minutes = 0;
+       }
+
+       uptime += `${days} days, ${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+
+       let serverembed = new MessageEmbed()
+           .setColor("#228B22")
+           .setFooter(`Uptime: ${uptime}`);
+
+       message.channel.send(serverembed);
+
+}
+    if (command === "leave"&&message.author.id=="654669770549100575") {
+       message.channel.send({embed: {
+  color: 3066993,
+  description:`Bye,Bye...I'm Leaving Server!`
+}});
     }
     if (command === "leave"&&message.author.id=="654669770549100575") {
       message.guild
@@ -198,6 +961,18 @@ bot.on("message", async (message) => { // eslint-disable-line
         .then(guild => console.log('Left guild', guild.name))
         .catch(console.error);
     }
+    if (command === "setbotnick"&&message.author.id=="654669770549100575") {
+        const newName = message.content.split(' ');
+
+    try{
+        bot.user.setUsername(newName[1])
+            .then(user => message.channel.send(`My new username is **${user.username}**`))
+            .catch(console.error);
+    }
+    catch(error){
+        message.channel.send("I could not set my new username :sob:");
+    }
+}
     if (command === "avatar" || command === "a") {
         let member = message.mentions.users.first() || message.author
 
@@ -210,12 +985,6 @@ bot.on("message", async (message) => { // eslint-disable-line
         .setColor("RANDOM")
 
         message.channel.send(helpembed);
-    }
-    if (command === "ping") {
-    // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
-    // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
-    const m = await message.channel.send("Ping?");
-    m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
     }
     if (command === "caronavirus" || command === "cv") {
               message.reply({embed: {
@@ -262,20 +1031,183 @@ bot.on("message", async (message) => { // eslint-disable-line
         message.channel.send(helpembed);
     }
     if (command === "serverinfo" || command === "si") {
-        const helpembed = new MessageEmbed()
-            .setColor("RED")
-            .setTitle("Server Info")
-            .setImage(message.guild.iconURL())
-            .setDescription(`${message.guild}'s information`)
-            .addField("Owner", `The owner of this server is ${message.guild.owner}`)
-            .addField("Member Count", `This server has ${message.guild.memberCount} members`)
-            .addField("Emoji Count", `This server has ${message.guild.emojis.cache.size} emojis`)
-            .addField("Roles Count", `This server has ${message.guild.roles.cache.size} roles`)
-            .setTimestamp()
-        message.channel.send(helpembed);
+        function checkBots(guild) {
+        let botCount = 0;
+        guild.members.cache.forEach(member => {
+            if(member.user.bot) botCount++;
+        });
+        return botCount;
     }
+    
+    function checkMembers(guild) {
+        let memberCount = 0;
+        guild.members.cache.forEach(member => {
+            if(!member.user.bot) memberCount++;
+        });
+        return memberCount;
+    }
+
+    function checkOnlineUsers(guild) {
+        let onlineCount = 0;
+        guild.members.cache.forEach(member => {
+            if(member.user.presence.status === "online")
+                onlineCount++; 
+        });
+        return onlineCount;
+    }
+
+    let serverembed = new MessageEmbed()
+        .setAuthor(`${message.guild.name} Server Info`, message.guild.iconURL)
+        .setColor("#15f153")
+        .setImage(message.guild.iconURL())
+        .addField('Server owner', message.guild.owner, true)
+        .addField('Server region', message.guild.region, true)
+        .addField("Server Name", message.guild.name)
+        .addField('Verification level', message.guild.verificationLevel, true)
+        .addField('Channel count', message.guild.channels.cache.size, true)
+        .addField('Total member count', message.guild.memberCount)
+        .addField('Humans', checkMembers(message.guild), true)
+        .addField('Bots', checkBots(message.guild), true)
+        .addField('Online', checkOnlineUsers(message.guild))
+        .addField('Emoji Count', `${message.guild.emojis.cache.size}`)
+        .addField('Roles Count', `${message.guild.roles.cache.size}`)          
+        .setFooter('Guild created at:')
+        .setTimestamp(message.guild.createdAt);
+
+    return message.channel.send(serverembed);
+}
     if (command === "userinfo" || command === "ui" || command === "whois" ) {
-      let user;
+        const moment = require('moment');
+const flags = {
+	DISCORD_EMPLOYEE: 'Discord Employee',
+	DISCORD_PARTNER: 'Discord Partner',
+	BUGHUNTER_LEVEL_1: 'Bug Hunter (Level 1)',
+	BUGHUNTER_LEVEL_2: 'Bug Hunter (Level 2)',
+	HYPESQUAD_EVENTS: 'HypeSquad Events',
+	HOUSE_BRAVERY: 'House of Bravery',
+	HOUSE_BRILLIANCE: 'House of Brilliance',
+	HOUSE_BALANCE: 'House of Balance',
+	EARLY_SUPPORTER: 'Early Supporter',
+	TEAM_USER: 'Team User',
+	SYSTEM: 'System',
+	VERIFIED_BOT: 'Verified Bot',
+	VERIFIED_DEVELOPER: 'Verified Bot Developer'
+};
+
+const status = {
+    online: "Online",
+    idle: "Idle",
+    dnd: "Do Not Disturb",
+    offline: "Offline/Invisible"
+};
+    var permissions = [];
+    var acknowledgements = 'None';
+   
+    let user;
+if (message.mentions.users.first()) {
+    user = message.mentions.users.first();
+} else {
+    user = message.author;
+}
+const joinDiscord = moment(user.createdAt).format('llll');
+const joinServer = moment(user.joinedAt).format('llll');
+       
+const member = message.guild.member(user);
+
+    const randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); }); 
+    
+    if(message.member.hasPermission("KICK_MEMBERS")){
+        permissions.push("Kick Members");
+    }
+    
+    if(message.member.hasPermission("BAN_MEMBERS")){
+        permissions.push("Ban Members");
+    }
+    
+    if(message.member.hasPermission("ADMINISTRATOR")){
+        permissions.push("Administrator");
+    }
+
+    if(message.member.hasPermission("MANAGE_MESSAGES")){
+        permissions.push("Manage Messages");
+    }
+    
+    if(message.member.hasPermission("MANAGE_CHANNELS")){
+        permissions.push("Manage Channels");
+    }
+    
+    if(message.member.hasPermission("MENTION_EVERYONE")){
+        permissions.push("Mention Everyone");
+    }
+
+    if(message.member.hasPermission("MANAGE_NICKNAMES")){
+        permissions.push("Manage Nicknames");
+    }
+
+    if(message.member.hasPermission("MANAGE_ROLES")){
+        permissions.push("Manage Roles");
+    }
+
+    if(message.member.hasPermission("MANAGE_WEBHOOKS")){
+        permissions.push("Manage Webhooks");
+    }
+
+    if(message.member.hasPermission("MANAGE_EMOJIS")){
+        permissions.push("Manage Emojis");
+    }
+
+    if(permissions.length == 0){
+        permissions.push("No Key Permissions Found");
+    }
+
+    if(member.user.id == message.guild.ownerID){
+        acknowledgements = 'Server Owner';
+    }
+    
+    const userFlags = member.user.flags.toArray();
+    const embed = new MessageEmbed()
+        .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL())
+        .setColor(randomColor)
+        .setFooter(`Replying to ${message.author.username}#${message.author.discriminator}`)
+        .setImage(member.user.displayAvatarURL())
+        .setTimestamp()
+        .addField(`${user.tag}`, `${user}`, true)
+        .addField("ID:", `${user.id}`, true)
+        .addField("Status",`${status[member.user.presence.status]}`, true)
+        .addField("Server Joined at:", `${moment.utc(member.joinedAt).format("dddd, MMMM Do YYYY")}`, true)
+        .addField("Account Created On:", `${moment.utc(user.createdAt).format("dddd, MMMM Do YYYY")}`, true) 
+        .addField("Permissions: ", `${permissions.join(', ')}`, true)
+        .addField(`Roles [${member.roles.cache.filter(r => r.id !== message.guild.id).map(roles => `\`${roles.name}\``).length}]`,`${member.roles.cache.filter(r => r.id !== message.guild.id).map(roles => `<@&${roles.id }>`).join(" **|** ") || "No Roles"}`, true)
+        .addField("Acknowledgements: ", `${acknowledgements}`, true);
+        
+    message.channel.send({embed});
+
+}
+    if (command === "roles" ) {
+       let user;
+if (message.mentions.users.first()) {
+    user = message.mentions.users.first();
+} else {
+    user = message.author;
+}
+
+    const member = message.guild.member(user);
+
+    const randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); }); 
+    const embed = new MessageEmbed()
+        .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL())
+        .setColor(randomColor)
+        .setFooter(`Replying to ${message.author.username}#${message.author.discriminator}`)
+        .setImage(member.user.displayAvatarURL())
+        .setTimestamp()
+        .addField(`Roles [${member.roles.cache.filter(r => r.id !== message.guild.id).map(roles => `\`${roles.name}\``).length}]`,`${member.roles.cache.filter(r => r.id !== message.guild.id).map(roles => `<@&${roles.id }>`).join(" **|** ") || "No Roles"}`, true)
+        
+    message.channel.send({embed});
+
+}
+    if (command === "checkperms" ) {
+        var permissions = [];
+    let user;
 if (message.mentions.users.first()) {
     user = message.mentions.users.first();
 } else {
@@ -284,57 +1216,114 @@ if (message.mentions.users.first()) {
 
 const member = message.guild.member(user);
 
-const embed = new MessageEmbed()
-    .setColor("RANDOM")
-    .setThumbnail(member.displayAvatarURL())
-    .addField(`${user.tag}`, `${user}`, true)
-    .addField("ID:", `${user.id}`, true)
-    .addField("Nickname:", `${member.nickname !== null ? `${member.nickname}` : 'None'}`, true)
-    .addField("Status:", `${user.presence.status}`, true)
-    .addField("In Server", message.guild.name, true)
-    .addField("Game:", `${user.presence.game ? user.presence.game.name : 'None'}`, true)
-    .addField("Bot:", `${user.bot}`, true)
-    .setTimestamp()
-    .setFooter(`Replying to ${message.author.username}#${message.author.discriminator}`)
-message.channel.send({embed});
+    const randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); }); 
+    
+    if(message.member.hasPermission("KICK_MEMBERS")){
+        permissions.push("Kick Members");
     }
+    
+    if(message.member.hasPermission("BAN_MEMBERS")){
+        permissions.push("Ban Members");
+    }
+    
+    if(message.member.hasPermission("ADMINISTRATOR")){
+        permissions.push("Administrator");
+    }
+
+    if(message.member.hasPermission("MANAGE_MESSAGES")){
+        permissions.push("Manage Messages");
+    }
+    
+    if(message.member.hasPermission("MANAGE_CHANNELS")){
+        permissions.push("Manage Channels");
+    }
+    
+    if(message.member.hasPermission("MENTION_EVERYONE")){
+        permissions.push("Mention Everyone");
+    }
+
+    if(message.member.hasPermission("MANAGE_NICKNAMES")){
+        permissions.push("Manage Nicknames");
+    }
+
+    if(message.member.hasPermission("MANAGE_ROLES")){
+        permissions.push("Manage Roles");
+    }
+
+    if(message.member.hasPermission("MANAGE_WEBHOOKS")){
+        permissions.push("Manage Webhooks");
+    }
+
+    if(message.member.hasPermission("MANAGE_EMOJIS")){
+        permissions.push("Manage Emojis");
+    }
+
+    if(permissions.length == 0){
+        permissions.push("No Key Permissions Found");
+    }
+       const embed = new MessageEmbed()
+        .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL())
+        .setColor(randomColor)
+        .setFooter(`Replying to ${message.author.username}#${message.author.discriminator}`)
+        .setImage(member.user.displayAvatarURL())
+        .setTimestamp()
+        .addField("Permissions: ", `${permissions.join(', ')}`, true)
+
+    message.channel.send({embed});
+
+}
+
     if (command === "botinfo" || command === "bi") {
-        const helpembed = new MessageEmbed()
-            .setColor("ORANGE")
-            .setTitle("Bot Info")
-            .setAuthor(`${message.guild}`, message.author.displayAvatarURL())
-            .setDescription(`Among Us Music Bot Information`)
-            .addField("Bot Owner", `The owner of this bot is Rock Star`)
-            .addField("Owner Id", `The owner id is 654669770549100575`)
-            .addField("My Id", `The bot id is 758889056649216041`)
-            .addField("My Prefix", `The bot prefix is -`)
-            .addField("Invite Me", `[Click here!](https://discord.com/api/oauth2/authorize?client_id=758889056649216041&permissions=8&scope=bot)`)
-            .setTimestamp()
-            .setFooter("Type -help for more commands!")
-        message.channel.send(helpembed);
+    let days = 0;
+    let week = 0;
+
+    let uptime = ``;
+    let totalSeconds = (bot.uptime / 1000);
+    let hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = Math.floor(totalSeconds % 60);
+
+    let servers = bot.guilds.cache.size;
+    let users = bot.users.cache.size;
+
+    if(hours > 23){
+        days = days + 1;
+        hours = 0;
     }
-    if (command === "help" || command === "cmd") {
-        const helpembed = new MessageEmbed()
-            .setColor("BLUE")
-            .setTitle("Type +help <command name>")
-            .setAuthor("Commands List", message.author.displayAvatarURL())
-            .addField("Music", `Play | Search | Stop | Skip | Resume | Pause | NowPlaying | Volume | Loop | Queue`)
-            .addField("Moderation", `Kick | Ban | Purge - Small Bug Fixing it Hold On Please...`)
-            .addField("Utility", `BotInfo | ServerInfo | UserInfo`)
-            .addField("Fun", `Covid | Carona | Commands are adding Wait some days!`)
-            .addField("Among Us", `Most commands work in discord servers,not in my Dms.Soon there will be more funny commands!`)
-            .setTimestamp()
-            .setFooter("Among Us Official", "https://cdn.discordapp.com/attachments/758709208543264778/758904787499745310/Screenshot_2020-09-25-09-45-28-68.jpg");
-        message.author.send(helpembed);
+
+    if(days == 7){
+        days = 0;
+        week = week + 1;
     }
-    if (command === "help" || command === "cmd") {
-        const helpembed = new MessageEmbed()
-            .setColor("BLUE")
-            .setDescription(`
-📩 |You've got Dm!`)
-            .setTimestamp()
-              message.channel.send(helpembed);
+
+    if(week > 0){
+        uptime += `${week} week, `;
     }
+
+    if(minutes > 60){
+        minutes = 0;
+    }
+
+    uptime += `${days} days, ${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+
+    let serverembed = new MessageEmbed()
+        .setColor("#9400D3")
+        .setAuthor(`Among Us`, bot.user.displayAvatarURL())
+        .setDescription(`Among Us Music Bot Information`)
+        .setImage(bot.user.displayAvatarURL())
+        .addField("Bot Owner", `Roc$tarLS109#8861(Rock Star)`)
+        .addField("Owner Id", `654669770549100575`)
+        .addField("My Id", `758889056649216041`)
+        .addField("My Prefix", `+`)
+        .addField(`Servers`,`${servers}`, true)
+        .addField(`Users`, `${users}`, true)
+        .addField(`Invite Me!`, `[Click Here!](https://discord.com/api/oauth2/authorize?client_id=758889056649216041&permissions=8&scope=bot)`, true)
+        .setFooter(`Uptime: ${uptime}`);
+
+    message.channel.send(serverembed);    
+
+}
     if(command === "kick") {
     if (!message.guild) return;
     // Assuming we mention someone in the message, this will return the user
@@ -423,23 +1412,6 @@ message.channel.send({embed});
       message.reply("You didn't mention the user to ban!");
     }
   }
-    if(command === "purge") {
-    const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-    const command = args.shift().toLowerCase();
-    // This command removes all messages from all users in the channel, up to 100.
-    
-    // get the delete count, as an actual number.
-    const deleteCount = parseInt(args[0], 10);
-    
-    // Ooooh nice, combined conditions. <3
-    if(!deleteCount || deleteCount < 2 || deleteCount > 100)
-      return message.reply("Please provide a number between 2 and 100 for the number of messages to delete");
-    
-    // So we get our messages, and delete them. Simple enough, right?
-    const fetched = await message.channel.messages.fetch({limit: deleteCount});
-    message.channel.bulkDelete(fetched)
-      .catch(error => message.reply(`Couldn't delete messages because of: ${error}`));
-    }
     if (command === "play" || command === "p") {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send({
@@ -448,7 +1420,7 @@ message.channel.send({embed});
                 description: "I'm sorry, but you need to be in a voice channel to play a music!"
             }
         });
-        const permissions = voiceChannel.permissionsFor(message.client.user);
+        const permissions = voiceChannel.permissionsFor(message.bot.user);
         if (!permissions.has("CONNECT")) {
             return message.channel.send({
                 embed: {
@@ -518,7 +1490,7 @@ message.channel.send({embed});
                 description: "I'm sorry, but you need to be in a voice channel to play a music!"
             }
         });
-        const permissions = voiceChannel.permissionsFor(message.client.user);
+        const permissions = voiceChannel.permissionsFor(message.bot.user);
         if (!permissions.has("CONNECT")) {
             return message.channel.send({
                 embed: {
@@ -701,7 +1673,7 @@ message.channel.send({embed});
         );
         number = chunk(number, 5);
 
-        let index = 0;
+        let i = 0;
         if (!serverQueue) return message.channel.send({
             embed: {
                 color: "RED",
