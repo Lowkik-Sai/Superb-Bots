@@ -7,6 +7,8 @@ module.exports = {
 
     async run (client, message, args) {
         let money = db.startsWith(`money_${message.guild.id}`, { sort: '.data' })
+        if(money === null) money = 0
+        console.log(money)
 
         let content = "";
 
