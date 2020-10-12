@@ -57,7 +57,7 @@ m.channel.send({embed: {
   description:`${guild.name}`
 }});
 });
-};
+}
 });
 
 bot.on('message',m=>{
@@ -131,12 +131,34 @@ bot.on("message", async (message) => { // eslint-disable-line
     const m = await message.channel.send("Ping?");
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms.`);
     }
+    if (command === "support" ) {
+        const Discord = require("discord.js");
+
+    let bicon = bot.user.displayAvatarURL;
+    let embed = new MessageEmbed()
+    .setColor("#00ff00")
+    .setThumbnail(bicon)
+    .setTitle("Support Info")
+    .addField("To see the bot commands use", "`+help`")
+    .addField("To report bug use", "`+contact <reason>`")
+    .addField("If you need help with somehign else, Join server and Dm Rock Star", "[Support Sever](https://discord.gg/NqT45sY)")
+
+    message.channel.send(embed)
+}
     if (command === "help" || command === "cmd") {
         const PaginationEmbed = require('discord-paginationembed');
- 
-const embeds = [];
 
-for (let i = 1; i <= 5; ++i)
+const embeds = [
+    { title: 'Fun Commands', description: 'CovidStats,Carona' },
+    { title: 'Mod Commands', description: 'Kick,Ban,Mute' },
+    { title: 'Info Commands', description: 'ServerInfo,BotInfo,UserInfo' },
+    { title: 'Role Commands', description: 'AddRole,RemoveRole' },
+    { title: 'Utility', description: 'Hastebin,Report,etc commands are coming asap!' },
+    { title: 'Owner', description: 'Answer' },
+    { title: 'Music', description: 'play, search,stop, skip,resume' },
+]
+
+for (let i = 0; i <= 0; ++i)
   embeds.push(new MessageEmbed());
  
  
@@ -145,11 +167,10 @@ const Embeds = new PaginationEmbed.Embeds()
   .setAuthorizedUsers([message.author.id])
   .setChannel(message.channel)
   .setPageIndicator(true)
-  .setTitle('Among Us')
-  .setDescription('Commands List')
   .setFooter('Type +help <commandname>')
-  .setURL('https://gazmull.github.io/discord-paginationembed')
-  .setColor(0xFF00AE)
+  .setURL('https://cdn.discordapp.com/attachments/758709208543264778/758904787499745310/Screenshot_2020-09-25-09-45-28-68.jpg')
+  .setColor("RANDOM")
+  .setTimestamp()
   // Sets the client's assets to utilise. Available options:
   //  - message: the client's Message object (edits the message instead of sending new one for this instance)
   //  - prompt: custom content for the message sent when prompted to jump to a page
@@ -191,27 +212,32 @@ bot.on("message", async (message) => { // eslint-disable-line
 
 	message.channel.send(`First argument: ${args[0]}`);
     }
-    if (command === "embed" ) {
-        const Discord = require("discord.js")
+ if (command === "embed" ) {
+     const sayMessage = args.join(" ")
+    if(!sayMessage) return message.reply({embed: {
+  color: 3066993,
+  description:"Proper Usage : +embed <Title> <Description> <Field Header> <Field Description> <Footer>"
+}})
+ 
 
-
-  if(message.author.id !== "654669770549100575") return;
-
-  const cmd = args.join(' ').split(' | ')
-
-  let emb = new MessageEmbed()
-  .setTitle(cmd[0])
-  .setColor("RANDOM")
-  .setDescription(cmd[1])
-  .setFooter(cmd[2])
-  .setTimestamp()
+    let emb = new MessageEmbed()
+      .setTitle(args[0])
+      .setColor("RANDOM")
+      .setDescription(args[1])
+      .setFooter(args[4])
+      .addField(args[2] , args[3])
+      .setImage(args[5])
+      .setTimestamp()
 
   message.channel.send(emb)
 
     }
     if (command === "ascii" ) {
         const figlet = require('figlet');
-        if(!args[0]) return message.channel.send('Please provide some text');
+        if(!args[0]) return message.channel.send({embed: {
+   color: 3066993,
+   description:'Please provide some text'
+}});
 
         msg = args.join(" ");
 
@@ -225,6 +251,17 @@ bot.on("message", async (message) => { // eslint-disable-line
             message.channel.send('```' + data + '```')
         })
     }
+    if (command === "finduser" ) {
+    let users = bot.users;
+
+    let searchTerm = args[0];
+    if(!searchTerm) return message.channel.send("Please type a term to search!");
+
+    let matches = users.cache.filter(u => u.tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    message.channel.send(matches.map(u => u.tag));
+
+     }
     if (command === "deletewarns" || command === "delwarns" ) {
         const db = require('quick.db');
         const warnings = require('./warnings.js');
@@ -381,6 +418,21 @@ bot.on("message", async (message) => { // eslint-disable-line
   description:`${user} currently has ${bal} coins!`
 }});
     }
+    if (command === "hastebin" ) {
+        const hastebin = require('hastebin-gen');
+
+     let haste = args.slice(0).join(" ")
+
+        let type = args.slice(1).join(" ")
+
+        if (!args[0]) { return message.channel.send("What do you want to post in Hastebin?") }
+
+        hastebin(haste).then(r => {
+
+            message.channel.send("`Posted to Hastebin at this URL:`  " + r);
+
+        }).catch(console.error);
+}        
     if (command === "daily" ) {
        const db = require('quick.db');
        const ms = require('parse-ms');
@@ -433,6 +485,11 @@ bot.on("message", async (message) => { // eslint-disable-line
         }
     }
     if (command === "buy" ) {
+        const sayMessage = args.join(" ")
+    if(!sayMessage) return message.reply({embed: {
+  color: 3066993,
+  description:"Proper Usage : +buy <store item>"
+}})
        const db = require('quick.db');
        const Discord = require('discord.js');
 
@@ -483,14 +540,17 @@ bot.on("message", async (message) => { // eslint-disable-line
         message.channel.send(Embed);
     }
     if (command === "leaderboard" || command === "lb" ) {
-        const db = require('quick.db');
-       const Discord = require('discord.js');
 
-        let money = db.fetch(`money_${message.guild.id}`, { sort: '.data' })
+        const db = require('quick.db');
+        const Discord = require('discord.js');
+
+        let bal = db.fetch(`money_${message.guild.id}`, { sort: '.data' })
+        if(bal === null) money = 0
+        console.log(bal)
 
         let content = "";
 
-        for (let i = 0; i < money.length; i++){
+        for (let i = 0; i < bal.length; i++){
             let user = client.users.cache.get(money[i].ID.split('_')[2]).username
 
             content += `${i+1}. ${user} - ${money[i].data} \n`;
@@ -510,7 +570,10 @@ bot.on("message", async (message) => { // eslint-disable-line
 
        let colorOfChoice = args.join(" ");
 
-        if(!args[0]) return message.channel.send('Provide a valid HEX code (#FF0000)');
+        if(!args[0]) return message.channel.send({embed: {
+   color: 3066993,
+   description:'Provide a valid HEX code (#FF0000)'
+}});
 
         let image = await canva.color(`#${colorOfChoice}`)
 
@@ -525,7 +588,10 @@ bot.on("message", async (message) => { // eslint-disable-line
 
         let text = args.join(" ");
 
-        if(!args[0]) return message.channel.send('Provide a valid HEX code (#FF0000)');
+        if(!args[0]) return message.channel.send({embed: {
+    color: 3066993,
+    description:'Provide a valid HEX code (#FF0000)'
+}});
 
         let image = await canva.changemymind(text);
 
@@ -537,23 +603,12 @@ bot.on("message", async (message) => { // eslint-disable-line
     let res;
     try {
       await message.channel.send("Searching for code to beautify...");
-      res = await format(msg);
+      res = await format(message);
     } catch(e) {
       res = e;
     }
     return message.channel.send(res);
   };
-  
-  exports.conf = {
-    enabled: true,
-    guildOnly: false,
-    aliases: ["pretty"]
-  };
-  
-  exports.help = {
-    name: 'beautify'
-  };
-  
   
   const { js_beautify } = require("js-beautify");
   
@@ -565,7 +620,7 @@ bot.on("message", async (message) => { // eslint-disable-line
     return string.split("\n").map(line => line.replace(whitespace, "")).join("\n");
   };
   
-  const format = async (msg) => {
+  const format = async (message) => {
     const messages = message.channel.messages.array().reverse();
     let code;
     const codeRegex = /```(?:js|json|javascript)?\n?((?:\n|.)+?)\n?```/ig;
@@ -590,7 +645,10 @@ bot.on("message", async (message) => { // eslint-disable-line
 
         const Discord = require('discord.js');
 
-        if(!args[0]) return message.channel.send('Please provide a question');
+        if(!args[0]) return message.channel.send({embed: {
+    color: 3066993,
+    description:'Please provide a question'
+}});
 
         let resp;
 
@@ -638,19 +696,34 @@ bot.on("message", async (message) => { // eslint-disable-line
   .addField("Usage", "!addrole [user] [role]", true)
   .addField("Example", "!addrole @Odar Member")
 
-  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send("You don't have premmsions to do that!");
+  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send({embed: {
+   color: 3066993,
+   description:"You don't have permissions to do that!👎"
+}});
   let rMember = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
   if(!rMember) return message.channel.send(xdemb);
 
   let role = args.join(" ").slice(22);
-  if(!role) return message.channel.send("Specify a role!");
-  let gRole = message.guild.roles.cache.find(`name`, role);
-  if(!gRole) return message.channel.send("Couldn't find that role.");
+  if(!role) return message.channel.send({embed: {
+   color: 3066993,
+   description:"Specify a role!🙂"
+}});
+  let gRole = message.guild.roles.cache.find(r => r.name === role );
+  if(!gRole) return message.channel.send({embed: {
+   color: 3066993,
+   description:"Couldn't find that role!🙂"
+}});
 
-  if(rMember.roles.has(gRole.id)) return message.channel.send("This user already have that role.");
-  await(rMember.addRole(gRole.id));
+  if(rMember.roles.cache.has(gRole.id)) return message.channel.send({embed: {
+   color: 3066993,
+   description:"This user already have that role."
+}});
+  await(rMember.roles.add(gRole.id));
 
-    await message.channel.send(`***I just gave ${rMember.user.username} the ${gRole.name} role!***`)
+    await message.channel.send({embed: {
+   color: 3066993,
+   description:`👍 | Successfully,I added ${gRole.name} role to ${rMember.user.username}!`
+}})
   
 }
     if (command === "removerole" || command === "rr" ) {
@@ -671,20 +744,35 @@ bot.on("message", async (message) => { // eslint-disable-line
   .addField("Usage", "!removerole [user] [role]", true)
   .addField("Example", "!removerole @Odar Member")
 
-  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send("You need the `manage members`premission to do that!.");
+  if(!message.member.hasPermission("MANAGE_ROLES")) return message.channel.send({embed: {
+   color: 3066993,
+   description:"You don't have permissions to do that!👎"
+}});
   let rMember = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
   if(!rMember) return message.channel.send(xdemb);
 
   let role = args.join(" ").slice(22);
 
-  if(!role) return message.channel.send("Specify a role!");
-  let gRole = message.guild.roles.cache.find(`name`, role);
-  if(!gRole) return message.channel.send("Couldn't find that role.");
+  if(!role) return message.channel.send({embed: {
+  color: 3066993,
+  description:"Specify a role!🙂"
+}});
+  let gRole = message.guild.roles.cache.find(r => r.name === role);
+  if(!gRole) return message.channel.send({embed: {
+   color: 3066993,
+   description:"Couldn't find that role!🙂"
+}});
 
-  if(!rMember.roles.has(gRole.id)) return message.channel.send("This user doesn't have that role.");
-  await(rMember.removeRole(gRole.id));
+  if(!rMember.roles.cache.has(gRole.id)) return message.channel.send({embed: {
+   color: 3066993,
+   description:"This user doesn't have that role."
+}});
+  await(rMember.roles.remove(gRole.id));
 
-  await message.channel.send(`***I just removed ${rMember.user.username}'s ${gRole.name} role!***`)
+  await message.channel.send({embed: {
+  color: 3066993,
+  description:`👍 | Successfully,I removed ${gRole.name} role from ${rMember.user.username}!`
+}})
 
 }
     if (command === "answer" ) {
@@ -776,6 +864,295 @@ ${eval(command)}
 \`\`\``);
 
   }
+    if (command === "morse" ) {
+       const Discord = require("discord.js");
+    let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split(""),
+				morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(","),
+				text = args.join(" ").toUpperCase();
+	               if (!text) return message.channel.send('Place a text or a morse code to be encoded or decoded.') // but you can change the answer :)
+	
+			while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
+				text = text.replace("Ä","AE").replace("Ö","OE").replace("Ü","UE");
+			}
+			if (text.startsWith(".") || text.startsWith("-")) {
+				text = text.split(" ");
+				let length = text.length;
+				for (i = 0; i < length; i++) {
+					text[i] = alpha[morse.indexOf(text[i])];
+				}
+				text = text.join("");
+			} else {
+				text = text.split("");
+				let length = text.length;
+				for (i = 0; i < length; i++) {
+					text [i] = morse[alpha.indexOf(text[i])];
+				}
+				text = text.join(" ");
+			}
+			return message.channel.send("```"+text+"```");
+
+}
+    if (command === "reverse" ) {
+        if (args.length < 1) {
+        throw 'You must input text to be reversed!';
+    }
+    message.reply(args.join(' ').split('').reverse().join(''));
+
+
+}
+    if (command === "flip" ) {
+        const mapping = '¡"#$%⅋,)(*+\'-˙/0ƖᄅƐㄣϛ9ㄥ86:;<=>?@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z[/]^_`ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz{|}~';
+// Start with the character '!'
+const OFFSET = '!'.charCodeAt(0);
+
+    if (args.length < 1) return message.channel.send("You must provide text to flip!");
+
+    message.channel.send(
+        args.join(' ').split('')
+            .map(c => c.charCodeAt(0) - OFFSET)
+            .map(c => mapping[c] || ' ')
+            .reverse().join('')
+    );
+}
+    if (command === "google" ) {
+       const cheerio = require('cheerio');
+       const got = require('got');
+       const { stringify } = require('querystring');
+       const Discord = require("discord.js");
+
+    const sayMessage = args.join(" ")
+    if(!sayMessage) return message.reply({embed: {
+  color: 3066993,
+  description:"I need to know what to search..."
+}})
+    await message.channel.send('<a:googling:426453223310622740> Googling....');
+
+    const params = {
+        q: args.join(" "),
+        safe: 'on',
+        lr: 'lang_en',
+        hl: 'en'
+    };
+
+    let resp = await got('https://google.com/search?' + stringify(params), { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) Gecko/20100101 Firefox/53.0' }});
+
+    if(resp.statusCode !== 200) throw 'Google didn\'t want to respond somehow';
+
+    const $ = cheerio.load(resp.body);
+
+    const results = [];
+
+    let card = null;
+
+    const cardNode = $('div#rso > div._NId').find('div.vk_c, div.g.mnr-c.g-blk, div.kp-blk');
+
+    if(cardNode && cardNode.length !== 0) {
+        card = this.parseCards($, cardNode);
+    }
+
+    $('.rc > h3 > a').each((i, e) => {
+        const link = $(e).attr('href');
+        const text = $(e).text();
+        if(link) {
+            results.push({ text, link });
+        }
+    });
+
+    if(card) {
+        const value = results.slice(0, 3).map(r => `[${r.text}](${r.link})`).join('\n');
+        if(value) {
+            card.addField(`This is what I also found for: "${params.q}" `, value)
+                .setColor(bot.utils.randomColor())
+                .setURL(`https://google.com/search?q=${encodeURIComponent(params.q)}`);
+        }
+        return await message.channel.send(card);
+    }
+
+    if(results.length === 0) {
+        return await message.channel.send("Sorry, I didn't found any results");
+    }
+    
+    const firstentry = `${results[0].link}`;
+    const resultxD = results.slice(0, 1).map(r => `${r.link}`).join('\n');
+
+    await message.channel.send(resultxD);
+
+}
+    if (command === "imdb" ) {
+      const Discord = require("discord.js");
+      const chalk = require('chalk');
+      const {Command} = require('sylphy');
+      const imdb = require('imdb-api');
+
+    if (!args.join(" ")) return message.channel.send({embed: {
+   color: 3066993,
+   description:'Oh no, you didn\'t give a movie or serie to search for.'
+}});
+    let movie;
+    try {
+        movie = await imdb.get(args.join(" "), {apiKey: "6fb3a82"});
+    } catch (e) {
+        return console.log(e)
+    }
+
+    let imdbemb = new MessageEmbed()
+    .setColor("#00ff00")
+    .setTitle(movie.title)
+    .setURL(movie.imdburl)
+    .setDescription(movie.plot)
+    .setThumbnail(movie.poster)
+    .addField("Rate", movie.rating, true)
+    .addField("Time", movie.runtime, true)
+    .addField("Awards", movie.awards, true)
+    .addField("Langueages", movie.languages, true)
+    .addField("Genres", movie.genres, true)
+    .addField("PG", movie.rated, true)
+    .addField("Coutry", movie.country, true)
+    .addField("Released", movie.released)
+    .setFooter('All information is provided by IMDB')
+    
+    message.channel.send(imdbemb)
+
+    console.log(movie)
+
+}
+    if (command === "rate" ) {
+       const Discord = require("discord.js")
+
+let ratus = message.mentions.members.first();
+if(!ratus) return message.channel.send("Tag someone to rate them!");
+
+let rates = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+
+let result = Math.floor((Math.random() * rates.length));
+
+if(ratus.user.id === message.author.id) {
+  return message.channel.send(`**${message.author.username}**, I'd give you ${result}/10<:thonk:427846193503272960>`);
+} else return message.channel.send(`I'd give **__${ratus.user.username}__** ${result}/10 <:thonk:427846193503272960>`);
+
+}
+    if (command === "kill" ) {
+       const Discord = require("discord.js")
+
+let killed = message.mentions.members.first();
+if(!killed) {
+
+let emb = new MessageEmbed()
+.setColor("#00f00")
+.setDescription(`${message.author} decied to kill themself 💔 REST IN PEACE`)
+
+message.channel.send(emb)
+
+} else {
+
+let emb = new MessageEmbed()
+.setColor("#00f00")
+.setDescription(`${killed} was killed by ${message.author} 💔 REST IN PEACE`)
+
+message.channel.send(emb)
+
+
+}
+
+}
+    if (command === "translate" ) {
+        const Discord = require('discord.js');
+const translate = require('google-translate-api');
+//const Langs = ['afrikaans','albanian','amharic','arabic','armenian','azerbaijani','bangla','basque','belarusian','bengali','bosnian','bulgarian','burmese','catalan','cebuano','chichewa','chinese simplified','chinese traditional','corsican','croatian','czech','danish','dutch','english','esperanto','estonian','filipino','finnish','french','frisian','galician','georgian','german','greek','gujarati','haitian creole','hausa','hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish','italian','japanese','javanese','kannada','kazakh','khmer','korean','kurdish (kurmanji)','kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay','malayalam','maltese','maori','marathi','mongolian','myanmar (burmese)','nepali','norwegian','nyanja','pashto','persian','polish','portugese','punjabi','romanian','russian','samoan','scottish gaelic','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian','somali','spanish','sundanese','swahili','swedish','tajik','tamil','telugu','thai','turkish','ukrainian','urdu','uzbek','vietnamese','welsh','xhosa','yiddish','yoruba','zulu'];
+  
+  let langs = ['afrikaans','albanian','amharic','arabic','armenian','azerbaijani','bangla','basque','belarusian','bengali','bosnian','bulgarian','burmese','catalan','cebuano','chichewa','chinese simplified','chinese traditional','corsican','croatian','czech','danish','dutch','english','esperanto','estonian','filipino','finnish','french','frisian','galician','georgian','german','greek','gujarati','haitian creole','hausa','hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish','italian','japanese','javanese','kannada','kazakh','khmer','korean','kurdish (kurmanji)','kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay','malayalam','maltese','maori','marathi','mongolian','myanmar (burmese)','nepali','norwegian','nyanja','pashto','persian','polish','portugese','punjabi','romanian','russian','samoan','scottish gaelic','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian','somali','spanish','sundanese','swahili','swedish','tajik','tamil','telugu','thai','turkish','ukrainian','urdu','uzbek','vietnamese','welsh','xhosa','yiddish','yoruba','zulu'];
+
+        let argie = args.join(` `).split(" | ")
+        let langie = argie[0]
+        let text = argie[1]
+
+        if(langie === undefined){
+
+            let emb = new MessageEmbed()
+            .setColor("#00ff00")
+            .setTitle("Please choose language to translate to:")
+            .setDescription("'afrikaans','albanian','amharic','arabic','armenian','azerbaijani','bangla','basque','belarusian','bengali','bosnian','bulgarian','burmese','catalan','cebuano','chichewa','chinese simplified','chinese traditional','corsican','croatian','czech','danish','dutch','english','esperanto','estonian','filipino','finnish','french','frisian','galician','georgian','german','greek','gujarati','haitian creole','hausa','hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish','italian','japanese','javanese','kannada','kazakh','khmer','korean','kurdish (kurmanji)','kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay','malayalam','maltese','maori','marathi','mongolian','myanmar (burmese)','nepali','norwegian','nyanja','pashto','persian','polish','portugese','punjabi','romanian','russian','samoan','scottish gaelic','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian','somali','spanish','sundanese','swahili','swedish','tajik','tamil','telugu','thai','turkish','ukrainian','urdu','uzbek','vietnamese','welsh','xhosa','yiddish','yoruba','zulu'")
+            .addField("Usage", `!translate <language> | <text>`)
+
+            message.channel.send(emb)
+
+        } else if(text === undefined) {
+
+            let emb = new MessageEmbed()
+            .setColor("#00ff00")
+            .setTitle("What do you want to translate?")
+            .setDescription("'afrikaans','albanian','amharic','arabic','armenian','azerbaijani','bangla','basque','belarusian','bengali','bosnian','bulgarian','burmese','catalan','cebuano','chichewa','chinese simplified','chinese traditional','corsican','croatian','czech','danish','dutch','english','esperanto','estonian','filipino','finnish','french','frisian','galician','georgian','german','greek','gujarati','haitian creole','hausa','hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish','italian','japanese','javanese','kannada','kazakh','khmer','korean','kurdish (kurmanji)','kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay','malayalam','maltese','maori','marathi','mongolian','myanmar (burmese)','nepali','norwegian','nyanja','pashto','persian','polish','portugese','punjabi','romanian','russian','samoan','scottish gaelic','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian','somali','spanish','sundanese','swahili','swedish','tajik','tamil','telugu','thai','turkish','ukrainian','urdu','uzbek','vietnamese','welsh','xhosa','yiddish','yoruba','zulu'")
+            .addField("Usage", `!translate <language> | <text>`)
+
+            message.channel.send(emb)
+
+        } else {
+
+            let totransLC = langie.toLowerCase()
+
+            let translation;
+
+            if(!langs.includes(totransLC)){
+
+                let emb = new MessageEmbed()
+                .setColor("#00ff00")
+                .setTitle("Language not found!")
+                .setDescription("'afrikaans','albanian','amharic','arabic','armenian','azerbaijani','bangla','basque','belarusian','bengali','bosnian','bulgarian','burmese','catalan','cebuano','chichewa','chinese simplified','chinese traditional','corsican','croatian','czech','danish','dutch','english','esperanto','estonian','filipino','finnish','french','frisian','galician','georgian','german','greek','gujarati','haitian creole','hausa','hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish','italian','japanese','javanese','kannada','kazakh','khmer','korean','kurdish (kurmanji)','kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay','malayalam','maltese','maori','marathi','mongolian','myanmar (burmese)','nepali','norwegian','nyanja','pashto','persian','polish','portugese','punjabi','romanian','russian','samoan','scottish gaelic','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian','somali','spanish','sundanese','swahili','swedish','tajik','tamil','telugu','thai','turkish','ukrainian','urdu','uzbek','vietnamese','welsh','xhosa','yiddish','yoruba','zulu'")
+                .addField("Usage", `!translate <language> | <text>`)
+
+            }
+
+            translate(text, { to: totransLC }).then(trans =>{
+
+                let emb = new MessageEmbed()
+                .setColor("#00ff00")
+                .setDescription(trans.text)
+
+                message.channel.send(emb)
+
+            })
+
+        }
+  
+ /* if (args[0] === undefined) {
+      
+    const embed = new MessageEmbed()
+    .setColor("00ff00")
+    .setTitle("Please choose a language to translate to:")
+    .setDescription('`afrikaans`, `albanian`, `amharic`, `arabic`, `armenian`, `azerbaijani`, `bangla`, `basque`, `belarusian`, `bengali`, `bosnian`, `bulgarian`, `burmese`, `catalan`, `cebuano`, `chichewa`, `chinese simplified`, `chinese traditional`, `corsican`, `croatian`, `czech`, `danish`, `dutch`, `english`, `esperanto`, `estonian`, `filipino`, `finnish`, `french`, `frisian`, `galician`, `georgian`, `german`, `greek`, `gujarati`, `haitian creole`, `hausa`, `hawaiian`, `hebrew`, `hindi`, `hmong`, `hungarian`, `icelandic`, `igbo`, `indonesian`, `irish`, `italian`, `japanese`, `javanese`, `kannada`, `kazakh`, `khmer`, `korean`, `kurdish (kurmanji)`, `kyrgyz`, `lao`, `latin`, `latvian`, `lithuanian`, `luxembourgish`, `macedonian`, `malagasy`, `malay`, `malayalam`, `maltese`, `maori`, `marathi`, `mongolian`, `myanmar (burmese)`, `nepali`, `norwegian`, `nyanja`, `pashto`, `persian`, `polish`, `portugese`, `punjabi`, `romanian`, `russian`, `samoan`, `scottish gaelic`, `serbian`, `sesotho`, `shona`, `sindhi`, `sinhala`, `slovak`, `slovenian`, `somali`, `spanish`, `sundanese`, `swahili`, `swedish`, `tajik`, `tamil`, `telugu`, `thai`, `turkish`, `ukrainian`, `urdu`, `uzbek`, `vietnamese`, `welsh`, `xhosa`, `yiddish`, `yoruba`, `zulu`');
+
+    return message.channel.send(embed);
+
+  } else {
+
+    if (args[1] === undefined) {
+
+      return message.channel.send('I cannot translate nothing!');
+
+    } else {
+
+      let transArg = args[0].toLowerCase();
+    
+      args = args.join(' ').slice(prefix.length);
+      let translation;
+
+      if (!Langs.includes(transArg)) return message.channel.send(`Invalid language ${message.author}! (maybe check for typos?)\nYou can see all languages with \`${prefix}translators language\`.`);
+      args = args.slice(transArg.length);
+
+      translate(args, {to: transArg}).then(res => {
+
+        const embed = new MessageEmbed()
+        .setDescription(res.text)
+        .setColor("00ff00");
+        return message.channel.send(embed);
+
+      });
+
+    }
+
+  } */
+  
+}
     if (command === "covid" ) { 
         const fetch = require('node-fetch');
         const Discord = require('discord.js');
@@ -787,7 +1164,7 @@ ${eval(command)}
         const noArgs = new MessageEmbed()
         .setTitle('Missing arguments')
         .setColor(0xFF0000)
-        .setDescription('You are missing some args (ex: ;covid all || ;covid Canada)')
+        .setDescription('You are missing some args (ex: +covid all || +covid <country name>)')
         .setTimestamp()
 
         if(!args[0]) return message.channel.send(noArgs);
@@ -866,7 +1243,7 @@ ${eval(command)}
 
     message.channel.send({embed: {
   color: 3447003,
-  description:'Success!'
+  description:`Successfully deleted ${amount} messages!`
 }});
 
     }
@@ -1322,6 +1699,50 @@ const member = message.guild.member(user);
         .setFooter(`Uptime: ${uptime}`);
 
     message.channel.send(serverembed);    
+
+}
+    if(command === "mute" ) {
+       const Discord = require("discord.js");
+       const ms = require("ms");
+  //!mute @user 1s/m/h/d
+
+  let tomute = message.guild.member(message.mentions.users.first() || message.guild.members.cache.get(args[0]));
+  if(!tomute) return message.channel.send("Please tag user to mute!");
+  if(!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send("Sorry, you don't have permissions to use this!");
+  if(tomute.hasPermission("MANAGE_MESSAGES")) return message.channel.send("I cant mute this user");
+  if (tomute.id === message.author.id) return message.channel.send("You cannot mute yourself!");
+  let muterole = message.guild.roles.cache.find(r => r.name === 'MuTeD');
+
+  if(!muterole){
+    try{
+      muterole = await message.guild.roles.create({
+        name: "MuTeD",
+        color: "#000000",
+        permissions:[]
+      })
+      message.guild.channels.cache.forEach(async (channel, id) => {
+       await channel.overwritePermissions([
+  {
+     id: muterole.id,
+     deny: ['SEND_MESSAGES', 'ADD_REACTIONS'],
+  },
+]);
+});
+    }catch(e){
+      console.log(e.stack);
+    }
+  }
+
+  let mutetime = args[1];
+  if(!mutetime) return message.channel.send("You didn't specify a time!");
+
+  await(tomute.roles.add(muterole.id));
+  message.channel.send(`<@${tomute.id}> has been muted for ${ms(mutetime)}!`);
+
+  setTimeout(function(){
+    tomute.roles.remove(muterole.id);
+    message.channel.send(`<@${tomute.id}> has been unmuted!`);
+  }, ms(mutetime));
 
 }
     if(command === "kick") {
